@@ -1,1 +1,1199 @@
 # drone-management
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drone Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .login-card, .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .login-card {
+            width: 400px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"], input[type="password"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .nav-tab {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            margin-right: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .nav-tab.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: bold;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-active { background: #d4edda; color: #155724; }
+        .status-maintenance { background: #fff3cd; color: #856404; }
+        .status-repair { background: #f8d7da; color: #721c24; }
+        .status-available { background: #d1ecf1; color: #0c5460; }
+
+        .hidden {
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="logo">🚁 DroneManager</div>
+            <h2 style="margin-bottom: 30px; color: #333;">Welcome Back</h2>
+            
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter your username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password">
+            </div>
+            
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role">
+                    <option value="admin">Administrator</option>
+                    <option value="pilot">Pilot</option>
+                    <option value="technician">Technician</option>
+                    <option value="viewer">Viewer</option>
+                </select>
+            </div>
+            
+            <button class="btn" onclick="login()" style="width: 100%; margin-top: 20px;">
+                Sign In
+            </button>
+            
+            <div style="margin-top: 20px; font-size: 14px; color: #666;">
+                Demo Credentials: admin/admin123, pilot/pilot123, tech/tech123
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="hidden">
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <div>
+                    <h1 style="color: #667eea; cursor: pointer;" onclick="currentUser && currentUser.role === 'admin' ? showNotifications() : null">
+                        🚁 DroneManager
+                    </h1>
+                    <span id="welcomeText" style="color: #666;"></span>
+                </div>
+                <div>
+                    <button class="btn btn-secondary" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('dashboard')">Dashboard</button>
+                <button id="operationsTab" class="nav-tab" onclick="showTab('operations')">Operations</button>
+                <button id="maintenanceTab" class="nav-tab" onclick="showTab('maintenance')">Maintenance</button>
+                <button class="nav-tab" onclick="showTab('fleet')">Fleet</button>
+                <button class="nav-tab" onclick="showTab('reports')">Reports</button>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboardTab" class="tab-content">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalDrones">5</div>
+                        <div class="stat-label">Total Drones</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="activeFights">3</div>
+                        <div class="stat-label">Active Flights</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="maintenanceDue">2</div>
+                        <div class="stat-label">Maintenance Due</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalFlightHours">156</div>
+                        <div class="stat-label">Total Flight Hours</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Recent Activity</h3>
+                    <div id="recentActivity">
+                        <div class="alert alert-success">✅ Flight DJI-001 completed successfully - 2.5 hours</div>
+                        <div class="alert alert-warning">⚠️ Drone MAVIC-003 scheduled for maintenance tomorrow</div>
+                        <div class="alert alert-danger">🔧 Repair completed on PHANTOM-002 - Gimbal replacement</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operations Tab -->
+            <div id="operationsTab" class="tab-content hidden">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>Flight Operations</h3>
+                        <button class="btn" onclick="showModal('flightModal')">Schedule New Flight</button>
+                    </div>
+                    
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Flight ID</th>
+                                <th>Drone</th>
+                                <th>Pilot</th>
+                                <th>Date/Time</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="flightsTable">
+                            <tr>
+                                <td>FL-001</td>
+                                <td>DJI-001</td>
+                                <td>John Smith</td>
+                                <td>2025-07-23 09:00</td>
+                                <td>2.5h</td>
+                                <td><span class="status status-active">Completed</span></td>
+                                <td><button class="btn btn-secondary" onclick="viewFlight('FL-001')">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>FL-002</td>
+                                <td>MAVIC-003</td>
+                                <td>Sarah Johnson</td>
+                                <td>2025-07-23 14:00</td>
+                                <td>1.8h</td>
+                                <td><span class="status status-maintenance">In Progress</span></td>
+                                <td><button class="btn btn-secondary" onclick="viewFlight('FL-002')">View</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Maintenance Tab -->
+            <div id="maintenanceTab" class="tab-content hidden">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>Maintenance & Repairs</h3>
+                        <button class="btn" onclick="showModal('maintenanceModal')">Create Work Order</button>
+                    </div>
+                    
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Work Order</th>
+                                <th>Drone</th>
+                                <th>Type</th>
+                                <th>Technician</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="maintenanceTable">
+                            <tr>
+                                <td>WO-001</td>
+                                <td>PHANTOM-002</td>
+                                <td>Repair</td>
+                                <td>Mike Wilson</td>
+                                <td>High</td>
+                                <td><span class="status status-active">Completed</span></td>
+                                <td><button class="btn btn-secondary" onclick="viewMaintenance('WO-001')">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>WO-002</td>
+                                <td>MAVIC-003</td>
+                                <td>Preventive</td>
+                                <td>Lisa Chen</td>
+                                <td>Medium</td>
+                                <td><span class="status status-maintenance">Scheduled</span></td>
+                                <td><button class="btn btn-secondary" onclick="viewMaintenance('WO-002')">View</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Fleet Tab -->
+            <div id="fleetTab" class="tab-content hidden">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>Drone Fleet</h3>
+                        <button class="btn" onclick="showModal('droneModal')">Add New Drone</button>
+                    </div>
+                    
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Drone ID</th>
+                                <th>Model</th>
+                                <th>Serial Number</th>
+                                <th>Flight Hours</th>
+                                <th>Battery</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fleetTable">
+                            <tr>
+                                <td>DJI-001</td>
+                                <td>DJI Phantom 4</td>
+                                <td>PH4-12345</td>
+                                <td>45.2h</td>
+                                <td>85%</td>
+                                <td><span class="status status-available">Available</span></td>
+                                <td><button class="btn btn-secondary" onclick="viewDrone('DJI-001')">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>MAVIC-003</td>
+                                <td>DJI Mavic Pro</td>
+                                <td>MP-67890</td>
+                                <td>32.8h</td>
+                                <td>92%</td>
+                                <td><span class="status status-maintenance">In Flight</span></td>
+                                <td><button class="btn btn-secondary" onclick="viewDrone('MAVIC-003')">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>PHANTOM-002</td>
+                                <td>DJI Phantom 3</td>
+                                <td>PH3-54321</td>
+                                <td>78.1h</td>
+                                <td>0%</td>
+                                <td><span class="status status-repair">Under Repair</span></td>
+                                <td><button class="btn btn-secondary" onclick="viewDrone('PHANTOM-002')">View</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="reportsTab" class="tab-content hidden">
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">Reports & Analytics</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                        <button class="btn" onclick="generateReport('flight')">Flight Hours Report</button>
+                        <button class="btn" onclick="generateReport('maintenance')">Maintenance Report</button>
+                        <button class="btn" onclick="generateReport('utilization')">Utilization Report</button>
+                        <button class="btn" onclick="generateReport('costs')">Cost Analysis</button>
+                    </div>
+                    
+                    <div id="reportContent">
+                        <p style="text-align: center; color: #666; margin: 50px 0;">Select a report type above to view analytics</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flight Modal -->
+    <div id="flightModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideModal('flightModal')">&times;</span>
+            <h3>Schedule New Flight</h3>
+            
+            <div class="form-group">
+                <label>Drone</label>
+                <select id="flightDrone">
+                    <option value="DJI-001">DJI-001 (DJI Phantom 4)</option>
+                    <option value="MAVIC-003">MAVIC-003 (DJI Mavic Pro)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Pilot</label>
+                <select id="flightPilot">
+                    <option value="John Smith">John Smith</option>
+                    <option value="Sarah Johnson">Sarah Johnson</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Date & Time</label>
+                <input type="datetime-local" id="flightDateTime">
+            </div>
+            
+            <div class="form-group">
+                <label>Estimated Duration (hours)</label>
+                <input type="text" id="flightDuration" placeholder="e.g., 2.5">
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <button class="btn" onclick="scheduleFlow()">Schedule Flight</button>
+                <button class="btn btn-secondary" onclick="hideModal('flightModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Maintenance Modal -->
+    <div id="maintenanceModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideModal('maintenanceModal')">&times;</span>
+            <h3>Create Work Order</h3>
+            
+            <div class="form-group">
+                <label>Drone</label>
+                <select id="maintenanceDrone">
+                    <option value="DJI-001">DJI-001 (DJI Phantom 4)</option>
+                    <option value="MAVIC-003">MAVIC-003 (DJI Mavic Pro)</option>
+                    <option value="PHANTOM-002">PHANTOM-002 (DJI Phantom 3)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Type</label>
+                <select id="maintenanceType">
+                    <option value="Preventive">Preventive Maintenance</option>
+                    <option value="Repair">Repair</option>
+                    <option value="Inspection">Inspection</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Priority</label>
+                <select id="maintenancePriority">
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="Critical">Critical</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="maintenanceDescription" rows="4" placeholder="Describe the work to be performed..."></textarea>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <button class="btn" onclick="createWorkOrder()">Create Work Order</button>
+                <button class="btn btn-secondary" onclick="hideModal('maintenanceModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drone Modal -->
+    <div id="droneModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideModal('droneModal')">&times;</span>
+            <h3>Add New Drone</h3>
+            
+            <div class="form-group">
+                <label>Drone ID</label>
+                <input type="text" id="newDroneId" placeholder="e.g., DJI-004">
+            </div>
+            
+            <div class="form-group">
+                <label>Model</label>
+                <input type="text" id="newDroneModel" placeholder="e.g., DJI Phantom 4">
+            </div>
+            
+            <div class="form-group">
+                <label>Serial Number</label>
+                <input type="text" id="newDroneSerial" placeholder="e.g., PH4-12345">
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <button class="btn" onclick="addNewDrone()">Add Drone</button>
+                <button class="btn btn-secondary" onclick="hideModal('droneModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Modal -->
+    <div id="notificationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideModal('notificationModal')">&times;</span>
+            <div id="notificationContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        let currentUser = null;
+        let currentTab = 'dashboard';
+        
+        // Sample Data
+        let flights = [
+            {id: 'FL-001', drone: 'DJI-001', pilot: 'John Smith', datetime: '2025-07-23 09:00', duration: '2.5h', status: 'Completed'},
+            {id: 'FL-002', drone: 'MAVIC-003', pilot: 'Sarah Johnson', datetime: '2025-07-23 14:00', duration: '1.8h', status: 'In Progress'}
+        ];
+        
+        let maintenance = [
+            {id: 'WO-001', drone: 'PHANTOM-002', type: 'Repair', technician: 'Mike Wilson', priority: 'High', status: 'Completed'},
+            {id: 'WO-002', drone: 'MAVIC-003', type: 'Preventive', technician: 'Lisa Chen', priority: 'Medium', status: 'Scheduled'}
+        ];
+        
+        let drones = [
+            {id: 'DJI-001', model: 'DJI Phantom 4', serial: 'PH4-12345', hours: '45.2h', battery: '85%', status: 'Available'},
+            {id: 'MAVIC-003', model: 'DJI Mavic Pro', serial: 'MP-67890', hours: '32.8h', battery: '92%', status: 'In Flight'},
+            {id: 'PHANTOM-002', model: 'DJI Phantom 3', serial: 'PH3-54321', hours: '78.1h', battery: '0%', status: 'Under Repair'}
+        ];
+
+        // User Database with Email Integration
+        const userDatabase = {
+            'admin': {
+                password: 'admin123',
+                email: 'tinodfa@gmail.com',
+                fullName: 'System Administrator',
+                role: 'admin'
+            },
+            'pilot': {
+                password: 'pilot123',
+                email: 'pilot@droneops.com',
+                fullName: 'Pilot User',
+                role: 'pilot'
+            },
+            'tech': {
+                password: 'tech123',
+                email: 'tech@droneops.com',
+                fullName: 'Technician User',
+                role: 'technician'
+            },
+            'viewer': {
+                password: 'viewer123',
+                email: 'viewer@droneops.com',
+                fullName: 'Viewer User',
+                role: 'viewer'
+            }
+        };
+
+        // Authentication
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            
+            const user = userDatabase[username];
+            
+            if (user && user.password === password && user.role === role) {
+                currentUser = {
+                    username: username,
+                    role: role,
+                    email: user.email,
+                    fullName: user.fullName
+                };
+                
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                document.getElementById('welcomeText').innerHTML = `Welcome, ${user.fullName} (${role})<br><small style="color: #888;">${user.email}</small>`;
+                
+                // Hide tabs based on role
+                if (role === 'pilot') {
+                    document.getElementById('maintenanceTab').style.display = 'none';
+                } else if (role === 'technician') {
+                    document.getElementById('operationsTab').style.display = 'none';
+                } else if (role === 'viewer') {
+                    // Viewer can see all tabs but with limited functionality
+                }
+                
+                updateDashboard();
+                
+                // Send login notification to admin
+                if (username !== 'admin') {
+                    sendNotificationToAdmin(`User ${user.fullName} (${username}) logged in at ${new Date().toLocaleString()}`);
+                }
+            } else {
+                alert('Invalid credentials! Try: admin/admin123, pilot/pilot123, tech/tech123');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Tab Management
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.add('hidden'));
+            
+            // Remove active class from all nav tabs
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+            event.target.classList.add('active');
+            
+            currentTab = tabName;
+            
+            // Update content based on tab
+            if (tabName === 'operations') {
+                updateFlightsTable();
+            } else if (tabName === 'maintenance') {
+                updateMaintenanceTable();
+            } else if (tabName === 'fleet') {
+                updateFleetTable();
+            }
+        }
+
+        // Email Notification System
+        function sendNotificationToAdmin(message) {
+            const adminEmail = 'tinodfa@gmail.com';
+            const timestamp = new Date().toLocaleString();
+            
+            // Store notification for admin dashboard
+            const notifications = JSON.parse(localStorage.getItem('adminNotifications') || '[]');
+            notifications.unshift({
+                message: message,
+                timestamp: timestamp,
+                read: false
+            });
+            
+            // Keep only last 50 notifications
+            if (notifications.length > 50) {
+                notifications.splice(50);
+            }
+            
+            localStorage.setItem('adminNotifications', JSON.stringify(notifications));
+            
+            // In a real application, this would send an actual email
+            console.log(`Email would be sent to ${adminEmail}: ${message}`);
+            
+            // Update notification badge if admin is logged in
+            updateNotificationBadge();
+        }
+
+        function updateNotificationBadge() {
+            if (currentUser && currentUser.role === 'admin') {
+                const notifications = JSON.parse(localStorage.getItem('adminNotifications') || '[]');
+                const unreadCount = notifications.filter(n => !n.read).length;
+                
+                let badge = document.getElementById('notificationBadge');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.id = 'notificationBadge';
+                    badge.style.cssText = `
+                        background: #dc3545;
+                        color: white;
+                        border-radius: 50%;
+                        padding: 2px 6px;
+                        font-size: 12px;
+                        margin-left: 10px;
+                        display: ${unreadCount > 0 ? 'inline' : 'none'};
+                    `;
+                    document.querySelector('.header h1').appendChild(badge);
+                }
+                
+                badge.textContent = unreadCount;
+                badge.style.display = unreadCount > 0 ? 'inline' : 'none';
+            }
+        }
+
+        function showNotifications() {
+            if (currentUser.role !== 'admin') return;
+            
+            const notifications = JSON.parse(localStorage.getItem('adminNotifications') || '[]');
+            let notificationHtml = '<h3>System Notifications</h3><div style="max-height: 400px; overflow-y: auto;">';
+            
+            if (notifications.length === 0) {
+                notificationHtml += '<p style="text-align: center; color: #666; margin: 20px;">No notifications</p>';
+            } else {
+                notifications.forEach((notification, index) => {
+                    notificationHtml += `
+                        <div style="padding: 10px; border-bottom: 1px solid #eee; ${!notification.read ? 'background: #f8f9fa;' : ''}">
+                            <div style="font-size: 14px; color: #666;">${notification.timestamp}</div>
+                            <div style="margin-top: 5px;">${notification.message}</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            notificationHtml += '</div><div style="margin-top: 20px;"><button class="btn" onclick="markAllAsRead()">Mark All as Read</button></div>';
+            
+            document.getElementById('notificationContent').innerHTML = notificationHtml;
+            showModal('notificationModal');
+        }
+
+        function markAllAsRead() {
+            const notifications = JSON.parse(localStorage.getItem('adminNotifications') || '[]');
+            notifications.forEach(n => n.read = true);
+            localStorage.setItem('adminNotifications', JSON.stringify(notifications));
+            updateNotificationBadge();
+            hideModal('notificationModal');
+        }
+
+        // Dashboard Updates
+        function updateDashboard() {
+            document.getElementById('totalDrones').textContent = drones.length;
+            document.getElementById('activeFights').textContent = flights.filter(f => f.status === 'In Progress').length;
+            document.getElementById('maintenanceDue').textContent = maintenance.filter(m => m.status === 'Scheduled').length;
+            
+            const totalHours = drones.reduce((sum, drone) => {
+                return sum + parseFloat(drone.hours.replace('h', ''));
+            }, 0);
+            document.getElementById('totalFlightHours').textContent = Math.round(totalHours);
+        }
+
+        // Table Updates
+        function updateFlightsTable() {
+            const tbody = document.getElementById('flightsTable');
+            tbody.innerHTML = '';
+            
+            flights.forEach(flight => {
+                const row = tbody.insertRow();
+                const statusClass = flight.status === 'Completed' ? 'status-active' : 
+                                  flight.status === 'In Progress' ? 'status-maintenance' : 'status-available';
+                
+                row.innerHTML = `
+                    <td>${flight.id}</td>
+                    <td>${flight.drone}</td>
+                    <td>${flight.pilot}</td>
+                    <td>${flight.datetime}</td>
+                    <td>${flight.duration}</td>
+                    <td><span class="status ${statusClass}">${flight.status}</span></td>
+                    <td><button class="btn btn-secondary" onclick="viewFlight('${flight.id}')">View</button></td>
+                `;
+            });
+        }
+
+        function updateMaintenanceTable() {
+            const tbody = document.getElementById('maintenanceTable');
+            tbody.innerHTML = '';
+            
+            maintenance.forEach(work => {
+                const row = tbody.insertRow();
+                const statusClass = work.status === 'Completed' ? 'status-active' : 
+                                  work.status === 'Scheduled' ? 'status-maintenance' : 'status-repair';
+                
+                row.innerHTML = `
+                    <td>${work.id}</td>
+                    <td>${work.drone}</td>
+                    <td>${work.type}</td>
+                    <td>${work.technician}</td>
+                    <td>${work.priority}</td>
+                    <td><span class="status ${statusClass}">${work.status}</span></td>
+                    <td><button class="btn btn-secondary" onclick="viewMaintenance('${work.id}')">View</button></td>
+                `;
+            });
+        }
+
+        function updateFleetTable() {
+            const tbody = document.getElementById('fleetTable');
+            tbody.innerHTML = '';
+            
+            drones.forEach(drone => {
+                const row = tbody.insertRow();
+                const statusClass = drone.status === 'Available' ? 'status-available' : 
+                                  drone.status === 'In Flight' ? 'status-maintenance' : 'status-repair';
+                
+                row.innerHTML = `
+                    <td>${drone.id}</td>
+                    <td>${drone.model}</td>
+                    <td>${drone.serial}</td>
+                    <td>${drone.hours}</td>
+                    <td>${drone.battery}</td>
+                    <td><span class="status ${statusClass}">${drone.status}</span></td>
+                    <td><button class="btn btn-secondary" onclick="viewDrone('${drone.id}')">View</button></td>
+                `;
+            });
+        }
+
+        // Modal Management
+        function showModal(modalId) {
+            if (currentUser && currentUser.role === 'viewer') {
+                alert('Viewers have read-only access. Contact an administrator to make changes.');
+                return;
+            }
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Flight Operations
+        function scheduleFlow() {
+            const drone = document.getElementById('flightDrone').value;
+            const pilot = document.getElementById('flightPilot').value;
+            const datetime = document.getElementById('flightDateTime').value;
+            const duration = document.getElementById('flightDuration').value;
+            
+            if (!drone || !pilot || !datetime || !duration) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const newFlight = {
+                id: 'FL-' + String(flights.length + 1).padStart(3, '0'),
+                drone: drone,
+                pilot: pilot,
+                datetime: datetime.replace('T', ' '),
+                duration: duration + 'h',
+                status: 'Scheduled'
+            };
+            
+            flights.push(newFlight);
+            updateFlightsTable();
+            updateDashboard();
+            hideModal('flightModal');
+            
+            // Send notification to admin
+            sendNotificationToAdmin(`New flight scheduled: ${newFlight.id} - ${drone} with pilot ${pilot} on ${datetime.replace('T', ' ')}`);
+            
+            // Clear form
+            document.getElementById('flightDrone').value = '';
+            document.getElementById('flightPilot').value = '';
+            document.getElementById('flightDateTime').value = '';
+            document.getElementById('flightDuration').value = '';
+            
+            alert('Flight scheduled successfully!');
+        }
+
+        function viewFlight(flightId) {
+            const flight = flights.find(f => f.id === flightId);
+            if (flight) {
+                alert(`Flight Details:\nID: ${flight.id}\nDrone: ${flight.drone}\nPilot: ${flight.pilot}\nDate/Time: ${flight.datetime}\nDuration: ${flight.duration}\nStatus: ${flight.status}`);
+            }
+        }
+
+        // Maintenance Operations
+        function createWorkOrder() {
+            const drone = document.getElementById('maintenanceDrone').value;
+            const type = document.getElementById('maintenanceType').value;
+            const priority = document.getElementById('maintenancePriority').value;
+            const description = document.getElementById('maintenanceDescription').value;
+            
+            if (!drone || !type || !priority || !description) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const newWork = {
+                id: 'WO-' + String(maintenance.length + 1).padStart(3, '0'),
+                drone: drone,
+                type: type,
+                technician: currentUser.username,
+                priority: priority,
+                status: 'Scheduled',
+                description: description
+            };
+            
+            maintenance.push(newWork);
+            updateMaintenanceTable();
+            updateDashboard();
+            hideModal('maintenanceModal');
+            
+            // Send notification to admin
+            sendNotificationToAdmin(`New work order created: ${newWork.id} - ${type} maintenance for ${drone} (Priority: ${priority})`);
+            
+            // Clear form
+            document.getElementById('maintenanceDrone').value = '';
+            document.getElementById('maintenanceType').value = '';
+            document.getElementById('maintenancePriority').value = '';
+            document.getElementById('maintenanceDescription').value = '';
+            
+            alert('Work order created successfully!');
+        }
+
+        function viewMaintenance(workId) {
+            const work = maintenance.find(w => w.id === workId);
+            if (work) {
+                alert(`Work Order Details:\nID: ${work.id}\nDrone: ${work.drone}\nType: ${work.type}\nTechnician: ${work.technician}\nPriority: ${work.priority}\nStatus: ${work.status}`);
+            }
+        }
+
+        // Fleet Management
+        function addNewDrone() {
+            const id = document.getElementById('newDroneId').value;
+            const model = document.getElementById('newDroneModel').value;
+            const serial = document.getElementById('newDroneSerial').value;
+            
+            if (!id || !model || !serial) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Check if drone ID already exists
+            if (drones.find(d => d.id === id)) {
+                alert('Drone ID already exists!');
+                return;
+            }
+            
+            const newDrone = {
+                id: id,
+                model: model,
+                serial: serial,
+                hours: '0.0h',
+                battery: '100%',
+                status: 'Available'
+            };
+            
+            drones.push(newDrone);
+            updateFleetTable();
+            updateDashboard();
+            hideModal('droneModal');
+            
+            // Send notification to admin
+            sendNotificationToAdmin(`New drone added to fleet: ${newDrone.id} - ${newDrone.model} (Serial: ${newDrone.serial})`);
+            
+            // Clear form
+            document.getElementById('newDroneId').value = '';
+            document.getElementById('newDroneModel').value = '';
+            document.getElementById('newDroneSerial').value = '';
+            
+            alert('Drone added successfully!');
+        }
+
+        function viewDrone(droneId) {
+            const drone = drones.find(d => d.id === droneId);
+            if (drone) {
+                alert(`Drone Details:\nID: ${drone.id}\nModel: ${drone.model}\nSerial: ${drone.serial}\nFlight Hours: ${drone.hours}\nBattery: ${drone.battery}\nStatus: ${drone.status}`);
+            }
+        }
+
+        // Reports
+        function generateReport(reportType) {
+            const reportContent = document.getElementById('reportContent');
+            
+            switch(reportType) {
+                case 'flight':
+                    reportContent.innerHTML = `
+                        <h4>Flight Hours Report</h4>
+                        <table class="table">
+                            <thead>
+                                <tr><th>Drone</th><th>Total Hours</th><th>Flights</th><th>Avg Duration</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>DJI-001</td><td>45.2h</td><td>18</td><td>2.5h</td></tr>
+                                <tr><td>MAVIC-003</td><td>32.8h</td><td>15</td><td>2.2h</td></tr>
+                                <tr><td>PHANTOM-002</td><td>78.1h</td><td>25</td><td>3.1h</td></tr>
+                            </tbody>
+                        </table>
+                    `;
+                    break;
+                case 'maintenance':
+                    reportContent.innerHTML = `
+                        <h4>Maintenance Report</h4>
+                        <table class="table">
+                            <thead>
+                                <tr><th>Drone</th><th>Last Service</th><th>Next Due</th><th>Total Cost</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>DJI-001</td><td>2025-06-15</td><td>2025-08-15</td><td>$245</td></tr>
+                                <tr><td>MAVIC-003</td><td>2025-07-01</td><td>2025-09-01</td><td>$180</td></tr>
+                                <tr><td>PHANTOM-002</td><td>2025-07-20</td><td>2025-09-20</td><td>$420</td></tr>
+                            </tbody>
+                        </table>
+                    `;
+                    break;
+                case 'utilization':
+                    reportContent.innerHTML = `
+                        <h4>Drone Utilization Report</h4>
+                        <table class="table">
+                            <thead>
+                                <tr><th>Drone</th><th>Utilization Rate</th><th>Available Days</th><th>Efficiency</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>DJI-001</td><td>78%</td><td>22 days</td><td>High</td></tr>
+                                <tr><td>MAVIC-003</td><td>65%</td><td>28 days</td><td>Medium</td></tr>
+                                <tr><td>PHANTOM-002</td><td>45%</td><td>15 days</td><td>Low</td></tr>
+                            </tbody>
+                        </table>
+                    `;
+                    break;
+                case 'costs':
+                    reportContent.innerHTML = `
+                        <h4>Cost Analysis Report</h4>
+                        <table class="table">
+                            <thead>
+                                <tr><th>Category</th><th>This Month</th><th>Last Month</th><th>YTD</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Maintenance</td><td>$845</td><td>$720</td><td>$5,240</td></tr>
+                                <tr><td>Repairs</td><td>$420</td><td>$280</td><td>$2,100</td></tr>
+                                <tr><td>Parts</td><td>$315</td><td>$450</td><td>$3,200</td></tr>
+                                <tr><td>Operations</td><td>$150</td><td>$130</td><td>$980</td></tr>
+                            </tbody>
+                        </table>
+                    `;
+                    break;
+            }
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default datetime to current time
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('flightDateTime').value = now.toISOString().slice(0, 16);
+            
+            // Update notification badge on load
+            setTimeout(() => {
+                updateNotificationBadge();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
